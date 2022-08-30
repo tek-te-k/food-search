@@ -1,16 +1,13 @@
 package routers
 
 import (
-	"fmt"
-	"net/http"
-
-	"github.com/julienschmidt/httprouter"
+	"github.com/labstack/echo/v4"
 )
 
-func SetupRouter(router *httprouter.Router) {
-	router.GET("/", Index)
+func SetupRouter(app *echo.Echo) {
+	app.GET("/", Index)
 }
 
-func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	fmt.Println("index")
+func Index(c echo.Context) error {
+	return c.String(200, "Hello, World!")
 }
