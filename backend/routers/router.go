@@ -1,13 +1,12 @@
 package routers
 
 import (
+	v1 "food-search-backend/routers/api/v1"
+
 	"github.com/labstack/echo/v4"
 )
 
 func SetupRouter(app *echo.Echo) {
-	app.GET("/", Index)
-}
-
-func Index(c echo.Context) error {
-	return c.String(200, "Hello, World!")
+	apiv1 := app.Group("/api/v1")
+	apiv1.POST("/search-foods", v1.SearchFoods)
 }
