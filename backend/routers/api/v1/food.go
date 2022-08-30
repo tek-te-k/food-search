@@ -39,8 +39,9 @@ func SearchFoods(c echo.Context) error {
 			Lat: req.Latitude,
 			Lng: req.Longitude,
 		},
-		Radius:  nearbySearchRadius,
-		Keyword: req.Keyword,
+		Radius:   nearbySearchRadius,
+		Keyword:  req.Keyword,
+		Language: "ja",
 	})
 	return c.JSON(200, pr)
 }
