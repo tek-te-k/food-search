@@ -26,6 +26,9 @@ func SearchFoods(c echo.Context) error {
 	if err := c.Bind(req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	if err := c.Validate(req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
 
 	client, err := maps.NewClient(maps.WithAPIKey(apiKey))
 	if err != nil {
