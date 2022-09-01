@@ -15,17 +15,17 @@ const (
 	nearbySearchRadius = 2000
 	imageWidth         = 400
 )
+const imageWidth = 400
 
 type SearchFoodsRequest struct {
-	Latitude  float64 `json:"latitude" validate:"required"`
-	Longitude float64 `json:"longitude" validate:"required"`
-	Keyword   string  `json:"keyword" validate:"required"`
+	Latitude     float64 `json:"latitude" validate:"required"`
+	Longitude    float64 `json:"longitude" validate:"required"`
+	SearchRadius uint    `json:"search_radius" validate:"required"`
+	Keyword      string  `json:"keyword" validate:"required"`
 }
 
 func SearchFoods(c echo.Context) error {
 	apiKey := os.Getenv("GOOGLE_API_KEY")
-	fmt.Println("moke", apiKey)
-
 	if apiKey == "" {
 		return echo.NewHTTPError(http.StatusInternalServerError, "FOOD_API_KEY is not set")
 	}
@@ -45,7 +45,7 @@ func SearchFoods(c echo.Context) error {
 			Lat: req.Latitude,
 			Lng: req.Longitude,
 		},
-		Radius:   nearbySearchRadius,
+		Radius:   req.SearchRadius,
 		Keyword:  req.Keyword,
 		Language: "ja",
 	})
