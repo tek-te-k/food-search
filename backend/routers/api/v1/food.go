@@ -11,7 +11,10 @@ import (
 	"googlemaps.github.io/maps"
 )
 
-const nearbySearchRadius = 2000
+const (
+	nearbySearchRadius = 2000
+	imageWidth         = 400
+)
 
 type SearchFoodsRequest struct {
 	Latitude  float64 `json:"latitude" validate:"required"`
@@ -74,7 +77,7 @@ func GetFoodDetail(c echo.Context) error {
 	// URL 内に API キーを含めないために，リダイレクト先の画像 URL を取得する
 	redirectedPhotoUrl := []string{}
 	for _, p := range detail.Photos {
-		photoUrl := fmt.Sprintf(api.GoogleMapsPhotoUrl, 400, p.PhotoReference, apiKey)
+		photoUrl := fmt.Sprintf(api.GoogleMapsPhotoUrl, imageWidth, p.PhotoReference, apiKey)
 		client := &http.Client{
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
