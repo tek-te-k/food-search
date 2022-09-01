@@ -9,4 +9,5 @@ import (
 func SetupRouter(app *echo.Echo) {
 	apiv1 := app.Group("/api/v1")
 	apiv1.POST("/search-foods", v1.SearchFoods)
+	apiv1.GET("/food-detail/:id/:ref", v1.GetFoodDetail)
 }

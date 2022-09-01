@@ -2,6 +2,8 @@ package v1
 
 import (
 	"context"
+	"fmt"
+	"image"
 	"net/http"
 	"os"
 
@@ -19,6 +21,8 @@ type SearchFoodsRequest struct {
 
 func SearchFoods(c echo.Context) error {
 	apiKey := os.Getenv("GOOGLE_API_KEY")
+	fmt.Println("moke", apiKey)
+
 	if apiKey == "" {
 		return echo.NewHTTPError(http.StatusInternalServerError, "FOOD_API_KEY is not set")
 	}
@@ -34,7 +38,7 @@ func SearchFoods(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	pr, err := client.NearbySearch(context.Background(), &maps.NearbySearchRequest{
+	res, err := client.NearbySearch(context.Background(), &maps.NearbySearchRequest{
 		Location: &maps.LatLng{
 			Lat: req.Latitude,
 			Lng: req.Longitude,
@@ -43,5 +47,48 @@ func SearchFoods(c echo.Context) error {
 		Keyword:  req.Keyword,
 		Language: "ja",
 	})
-	return c.JSON(200, pr)
+	return c.JSON(200, res)
+}
+
+type GetFoodDetailResponse struct {
+	Detail maps.PlaceDetailsResult `json:"detail"`
+	Photo  image.Image             `json:"photo"`
+}
+
+func GetFoodDetail(c echo.Context) error {
+	placeID := c.Param("id")
+	photoReference := c.Param("ref")
+	apiKey := os.Getenv("GOOGLE_API_KEY")
+	if apiKey == "" {
+		return echo.NewHTTPError(http.StatusInternalServerError, "FOOD_API_KEY is not set")
+	}
+
+	client, err := maps.NewClient(maps.WithAPIKey(apiKey))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	detail, err := client.PlaceDetails(context.Background(), &maps.PlaceDetailsRequest{
+		PlaceID:  placeID,
+		Language: "ja",
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	ppres, err := client.PlacePhoto(context.Background(), &maps.PlacePhotoRequest{
+		PhotoReference: photoReference,
+		MaxHeight:      300,
+		MaxWidth:       400,
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	photo, err := ppres.Image()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(200, &GetFoodDetailResponse{
+		Detail: detail,
+		Photo:  photo,
+	})
 }
