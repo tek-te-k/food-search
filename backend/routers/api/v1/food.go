@@ -3,7 +3,7 @@ package v1
 import (
 	"context"
 	"fmt"
-	"image"
+	"food-search-backend/routers/api"
 	"net/http"
 	"os"
 
@@ -51,13 +51,12 @@ func SearchFoods(c echo.Context) error {
 }
 
 type GetFoodDetailResponse struct {
-	Detail maps.PlaceDetailsResult `json:"detail"`
-	Photo  image.Image             `json:"photo"`
+	Detail   maps.PlaceDetailsResult `json:"detail"`
+	PhotoUrl []string                `json:"photo_url"`
 }
 
 func GetFoodDetail(c echo.Context) error {
 	placeID := c.Param("id")
-	photoReference := c.Param("ref")
 	apiKey := os.Getenv("GOOGLE_API_KEY")
 	if apiKey == "" {
 		return echo.NewHTTPError(http.StatusInternalServerError, "FOOD_API_KEY is not set")
@@ -75,20 +74,25 @@ func GetFoodDetail(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	ppres, err := client.PlacePhoto(context.Background(), &maps.PlacePhotoRequest{
-		PhotoReference: photoReference,
-		MaxHeight:      300,
-		MaxWidth:       400,
-	})
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	// URL 内に API キーを含めないために，リダイレクト先の画像 URL を取得する
+	redirectedPhotoUrl := []string{}
+	for _, p := range detail.Photos {
+		photoUrl := fmt.Sprintf(api.GoogleMapsPhotoUrl, 400, p.PhotoReference, apiKey)
+		client := &http.Client{
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		}
+		req, _ := http.NewRequest("GET", photoUrl, nil)
+		res, err := client.Do(req)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		redirectedPhotoUrl = append(redirectedPhotoUrl, res.Header.Get("Location"))
 	}
-	photo, err := ppres.Image()
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
+
 	return c.JSON(200, &GetFoodDetailResponse{
-		Detail: detail,
-		Photo:  photo,
+		Detail:   detail,
+		PhotoUrl: redirectedPhotoUrl,
 	})
 }
