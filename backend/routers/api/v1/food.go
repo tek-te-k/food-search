@@ -11,10 +11,6 @@ import (
 	"googlemaps.github.io/maps"
 )
 
-const (
-	nearbySearchRadius = 2000
-	imageWidth         = 400
-)
 const imageWidth = 400
 
 type SearchFoodsRequest struct {
@@ -49,6 +45,12 @@ func SearchFoods(c echo.Context) error {
 		Keyword:  req.Keyword,
 		Language: "ja",
 	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	if len(res.Results) == 0 {
+		return echo.NewHTTPError(http.StatusNotFound, "not found")
+	}
 	return c.JSON(200, res)
 }
 
