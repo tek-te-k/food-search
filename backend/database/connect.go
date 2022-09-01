@@ -24,7 +24,6 @@ func Connect() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	DB = conn
 	conn.AutoMigrate()
 }

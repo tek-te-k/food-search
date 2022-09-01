@@ -33,7 +33,6 @@ func SearchFoods(c echo.Context) error {
 	if err := c.Validate(req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-
 	client, err := maps.NewClient(maps.WithAPIKey(apiKey))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -61,7 +60,6 @@ func GetFoodDetail(c echo.Context) error {
 	if apiKey == "" {
 		return echo.NewHTTPError(http.StatusInternalServerError, "FOOD_API_KEY is not set")
 	}
-
 	client, err := maps.NewClient(maps.WithAPIKey(apiKey))
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -73,7 +71,6 @@ func GetFoodDetail(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-
 	// URL 内に API キーを含めないために，リダイレクト先の画像 URL を取得する
 	redirectedPhotoUrl := []string{}
 	for _, p := range detail.Photos {
@@ -90,7 +87,6 @@ func GetFoodDetail(c echo.Context) error {
 		}
 		redirectedPhotoUrl = append(redirectedPhotoUrl, res.Header.Get("Location"))
 	}
-
 	return c.JSON(200, &GetFoodDetailResponse{
 		Detail:   detail,
 		PhotoUrl: redirectedPhotoUrl,
