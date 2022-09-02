@@ -20,6 +20,17 @@ type SearchFoodsRequest struct {
 	Keyword      string  `json:"keyword" validate:"required"`
 }
 
+// SearchFoods search foods
+// @Summary search foods
+// @Description search foods
+// @Tags food
+// @Accept  json
+// @Produce  json
+// @Param search_foods_request body SearchFoodsRequest true "search foods request"
+// @Success 200 {object} maps.NearbySearchResponse
+// @Failure 400 {object} api.ErrorResponse
+// @Failure 500 {object} api.ErrorResponse
+// @Router /api/v1/food [post]
 func SearchFoods(c echo.Context) error {
 	apiKey := os.Getenv("GOOGLE_API_KEY")
 	if apiKey == "" {
@@ -59,6 +70,17 @@ type GetFoodDetailResponse struct {
 	PhotoUrl []string                `json:"photo_url"`
 }
 
+// GetFoodDetail get food detail
+// @Summary get food detail
+// @Description get food detail
+// @Tags food
+// @Accept  json
+// @Produce  json
+// @Param id path string true "place id"
+// @Success 200 {object} GetFoodDetailResponse
+// @Failure 400 {object} api.ErrorResponse
+// @Failure 500 {object} api.ErrorResponse
+// @Router /api/v1/food/{id} [get]
 func GetFoodDetail(c echo.Context) error {
 	placeID := c.Param("id")
 	apiKey := os.Getenv("GOOGLE_API_KEY")
